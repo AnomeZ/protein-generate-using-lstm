@@ -56,7 +56,7 @@ input_tensor = torch.tensor([padded_seed_sequence], dtype=torch.long).to(device)
 
 assert input_tensor.shape == (1, maxlen), f"Expected shape (1, {maxlen}), but got {input_tensor.shape}"
 
-##这段是之前使用的生成方法，可以用于对比生成效果
+
 generated_sequences = []
 for i in range(num_to_generate):
     with torch.no_grad():
@@ -80,33 +80,33 @@ for i in range(num_to_generate):
     generated_protein_sequence = ''.join(generated_sequence)
     generated_sequences.append(generated_protein_sequence)
 
+#这段是用一种局部采样的方法进行生成，效果其实还算可以，和上面的方法可以对照使用
+# generated_sequences =[]
+# for i in range(num_to_generate):
+#     with torch.no_grad():
+#         sequence = []
+#         output = model(input_tensor)
+#         output = output.reshape(-1,23)
+#         for j in range(maxlen):
+#             prob=torch.softmax(output[j]/temperature, dim=0)
+#             idx = torch.multinomial(prob, num_samples=1).item()
 
-generated_sequences =[]
-for i in range(num_to_generate):
-    with torch.no_grad():
-        sequence = []
-        output = model(input_tensor)
-        output = output.reshape(-1,23)
-        for j in range(maxlen):
-            prob=torch.softmax(output[j]/temperature, dim=0)
-            idx = torch.multinomial(prob, num_samples=1).item()
+#             std_prob=prob[idx].cpu().numpy()
 
-            std_prob=prob[idx].cpu().numpy()
-
-            std_p=np.percentile(std_prob, 20)
-            p = prob[idx].item()
-            print(p)
-            if idx == 0 or p < std_p:
-                idx = torch.multinomial(prob, num_samples=1).item()
-                p = prob[idx]
-            elif p < std_p:
-                break
-            else:
-                char = idx_to_char[idx]
-                sequence.append(char)
-            input_tensor = torch.cat([input_tensor[:, 1:], torch.tensor([[idx]], dtype=torch.long).to(device)], dim=1)
-        generated_protein_sequence = ''.join(sequence)
-        generated_sequences.append(generated_protein_sequence)
+#             std_p=np.percentile(std_prob, 20)
+#             p = prob[idx].item()
+#             print(p)
+#             if idx == 0 or p < std_p:
+#                 idx = torch.multinomial(prob, num_samples=1).item()
+#                 p = prob[idx]
+#             elif p < std_p:
+#                 break
+#             else:
+#                 char = idx_to_char[idx]
+#                 sequence.append(char)
+#             input_tensor = torch.cat([input_tensor[:, 1:], torch.tensor([[idx]], dtype=torch.long).to(device)], dim=1)
+#         generated_protein_sequence = ''.join(sequence)
+#         generated_sequences.append(generated_protein_sequence)
 
 
 for generated_protein_sequence in generated_sequences:
