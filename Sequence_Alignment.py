@@ -1,6 +1,6 @@
 
 #代码参考：https://zhuanlan.zhihu.com/p/599474543
-#这是一种蛋白质序列比对算法Sequence Alignment
+#这是一种蛋白质序列比对算法Smith-Waterman
 import math
 import numpy as np
 from tqdm import tqdm
